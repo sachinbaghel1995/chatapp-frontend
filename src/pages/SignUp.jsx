@@ -1,13 +1,15 @@
 // SignupForm.js
 import React, { useState } from 'react';
 import './SignUp.scss';
-
+import axios from 'axios'
+import { Link } from 'react-router-dom';
 
 const SignUp=()=> {
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone:'',
     password: '',
   });
 
@@ -18,6 +20,7 @@ const SignUp=()=> {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    axios.post('./api/users/adduser',formData)
    
   };
 
@@ -48,6 +51,17 @@ const SignUp=()=> {
           />
         </div>
         <div className="form-group">
+          <label htmlFor="phone">Phone</label>
+          <input
+            type="number"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
             type="password"
@@ -59,7 +73,9 @@ const SignUp=()=> {
           />
         </div>
         <button type="submit">Sign Up</button>
-       
+        <p>
+          Already have an account?<Link to="/">Login</Link> 
+        </p>
       </form>
     </div>
   );
