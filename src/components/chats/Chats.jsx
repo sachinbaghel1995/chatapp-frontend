@@ -10,6 +10,8 @@ const Chats = () => {
   const dispatch = useDispatch();
 
   const [Text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [user,SetUser]=useState('')
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -21,14 +23,34 @@ const Chats = () => {
 
         if (response.data && response.data.user) {
           console.log(response.data.user);
+          SetUser(response.data.user)
 
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
+    console.log(user.name)
 
     getUserData();
+  }, [token]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get("/api/messages/getmessage", {
+          headers: { Authorization: token },
+        });
+
+        if (response.data && response.data.messages) {
+          setMessages(response.data.messages); // Update messages state with fetched messages
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchMessages();
   }, [token]);
 
   const SendMessage = async () => {
@@ -50,6 +72,9 @@ const Chats = () => {
       <div className={style.chatContainer}>
         <ul className={style.chatlist}>
           <ChatList />
+          {messages.map((message) => (
+            <li key={message.id}>{user.name}-{message.text}</li>
+          ))}
         </ul>
       </div>
       <div className={style.inputContainer}>
