@@ -25,7 +25,7 @@ const Login = () => {
     });
     console.log(formData);
 
-    navigate("/signup");
+    navigate("/chats");
   };
 
   return (
