@@ -15,48 +15,49 @@ const Chats = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const response = await axios.get("/api/users/user", {
-          headers: { Authorization: token },
-        });
-
-        if (response.data && response.data.user) {
-          console.log(response.data.user);
-          SetUser(response.data.user);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    const getStoredMessages = () => {
+      const storedMessages = JSON.parse(localStorage.getItem('messages'));
+      if (storedMessages) {
+        setMessages(storedMessages);
       }
     };
-    console.log(user.name);
 
-    getUserData();
-  }, [token]);
+    getStoredMessages();
+  }, []);
 
   const fetchMessages = async () => {
     try {
+      const lastMessageTimestamp = messages.length > 0 ? messages[0].createdAt : null;
+
       const response = await axios.get("/api/messages/getmessage", {
         headers: { Authorization: token },
+        params: { lastMessageTimestamp },
       });
 
       if (response.data && response.data.messages) {
-        setMessages(response.data.messages); 
+        const newMessages = response.data.messages;
+
+        const updatedMessages = [...newMessages, ...messages];
+        const latestTenMessages = updatedMessages.slice(0, 10); // Take only the latest ten messages
+
+        localStorage.setItem('messages', JSON.stringify(latestTenMessages));
+
+        setMessages(latestTenMessages);
       }
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
   };
-
   useEffect(() => {
-    fetchMessages(); 
+    fetchMessages();
 
-    const intervalId = setInterval(fetchMessages, 1000); 
+    const intervalId = setInterval(fetchMessages, 1000);
 
     return () => {
-      clearInterval(intervalId); 
+      clearInterval(intervalId);
     };
   }, []);
+
   const SendMessage = async () => {
     try {
       const response = await axios.post(
@@ -101,3 +102,4 @@ const Chats = () => {
 };
 
 export default Chats;
+
