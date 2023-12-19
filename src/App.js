@@ -3,6 +3,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import './App.css'
 import ChatsPage from "./pages/ChatsPage";
+import AddMembers from "./components/chats/AddMembers";
 
 
 
@@ -13,6 +14,7 @@ function App() {
       <Route path="/" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/chats" element={<ChatsPage/>}/>
+        {/* <Route path="/addmember" element={<AddMembers/>}/> */}
       </Routes>
       
     </div>

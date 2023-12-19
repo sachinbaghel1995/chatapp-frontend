@@ -21,6 +21,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await axios.post("/api/users/login", formData).then((response) => {
+      console.log(response.data)
       localStorage.setItem("token", response.data.token);
     });
     console.log(formData);

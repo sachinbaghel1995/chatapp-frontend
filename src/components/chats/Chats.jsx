@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import ChatList from "./ChatList";
 import { getMessage } from "../Redux-Store/MessageSlice";
 import { Link, useParams } from "react-router-dom";
+import GroupCreation from "./GroupCreation";
+import GroupList from "./GroupList";
 
 const Chats = () => {
   const dispatch = useDispatch();
@@ -16,7 +18,7 @@ const Chats = () => {
 
   useEffect(() => {
     const getStoredMessages = () => {
-      const storedMessages = JSON.parse(localStorage.getItem('messages'));
+      const storedMessages = JSON.parse(localStorage.getItem("messages"));
       if (storedMessages) {
         setMessages(storedMessages);
       }
@@ -27,7 +29,8 @@ const Chats = () => {
 
   const fetchMessages = async () => {
     try {
-      const lastMessageTimestamp = messages.length > 0 ? messages[0].createdAt : null;
+      const lastMessageTimestamp =
+        messages.length > 0 ? messages[0].createdAt : null;
 
       const response = await axios.get("/api/messages/getmessage", {
         headers: { Authorization: token },
@@ -40,7 +43,7 @@ const Chats = () => {
         const updatedMessages = [...newMessages, ...messages];
         const latestTenMessages = updatedMessages.slice(0, 10); // Take only the latest ten messages
 
-        localStorage.setItem('messages', JSON.stringify(latestTenMessages));
+        localStorage.setItem("messages", JSON.stringify(latestTenMessages));
 
         setMessages(latestTenMessages);
       }
@@ -48,15 +51,15 @@ const Chats = () => {
       console.error("Error fetching messages:", error);
     }
   };
-  useEffect(() => {
-    fetchMessages();
+  // useEffect(() => {
+  //   fetchMessages();
 
-    const intervalId = setInterval(fetchMessages, 1000);
+  //   const intervalId = setInterval(fetchMessages, 1000);
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // }, []);
 
   const SendMessage = async () => {
     try {
@@ -71,10 +74,16 @@ const Chats = () => {
       console.log(error);
     }
   };
-
+  console.log(user);
   return (
     <div className={style.chatpage}>
       <div className={style.chatContainer}>
+        <div>
+          <GroupCreation />
+        </div>
+        <div>
+          <GroupList />
+        </div>
         <ul className={style.chatlist}>
           <ChatList />
           {messages.map((message) => (
@@ -102,4 +111,3 @@ const Chats = () => {
 };
 
 export default Chats;
-
