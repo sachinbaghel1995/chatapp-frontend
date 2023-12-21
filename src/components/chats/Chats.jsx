@@ -8,9 +8,12 @@ import { Link, useParams } from "react-router-dom";
 import GroupCreation from "./GroupCreation";
 import GroupList from "./GroupList";
 
-const Chats = () => {
-  const dispatch = useDispatch();
 
+const Chats = () => {
+  
+  const  group = useParams();
+  const groupId=group.id
+  console.log(groupId)
   const [Text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [user, SetUser] = useState("");
@@ -32,7 +35,7 @@ const Chats = () => {
       const lastMessageTimestamp =
         messages.length > 0 ? messages[0].createdAt : null;
 
-      const response = await axios.get("/api/messages/getmessage", {
+      const response = await axios.get(`/api/messages/getmessage/${groupId}`, {
         headers: { Authorization: token },
         params: { lastMessageTimestamp },
       });
@@ -51,20 +54,21 @@ const Chats = () => {
       console.error("Error fetching messages:", error);
     }
   };
-  // useEffect(() => {
-  //   fetchMessages();
 
-  //   const intervalId = setInterval(fetchMessages, 1000);
+  useEffect(() => {
+    fetchMessages();
 
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, []);
+    const intervalId = setInterval(fetchMessages, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   const SendMessage = async () => {
     try {
       const response = await axios.post(
-        "/api/messages/message",
+        `/api/messages/message/${groupId}`,
         { message: Text },
         { headers: { Authorization: token } }
       );
@@ -77,34 +81,41 @@ const Chats = () => {
   console.log(user);
   return (
     <div className={style.chatpage}>
-      <div className={style.chatContainer}>
-        <div>
-          <GroupCreation />
+      <div className={style.container}>
+        <div className={style.leftSection}>
+          <div>
+           
+          </div>
+          <div>
+            
+          </div>
         </div>
-        <div>
-          <GroupList />
+
+        <div className={style.rightSection}>
+          <div className={style.chatContainer}>
+            <ul className={style.chatlist}>
+              <ChatList />
+              {messages.map((message) => (
+                <li key={message.id}>
+                  {user.name}-{message.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className={style.inputContainer}>
+            <input
+              value={Text}
+              onChange={(e) => {
+                setText(e.target.value);
+              }}
+              type="text"
+              placeholder="Type your message..."
+            />
+            <button disabled={Text.length === 0} onClick={SendMessage}>
+              Send
+            </button>
+          </div>
         </div>
-        <ul className={style.chatlist}>
-          <ChatList />
-          {messages.map((message) => (
-            <li key={message.id}>
-              {user.name}-{message.text}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className={style.inputContainer}>
-        <input
-          value={Text}
-          onChange={(e) => {
-            setText(e.target.value);
-          }}
-          type="text"
-          placeholder="Type your message..."
-        />
-        <button disabled={Text.length === 0} onClick={SendMessage}>
-          Send
-        </button>
       </div>
     </div>
   );

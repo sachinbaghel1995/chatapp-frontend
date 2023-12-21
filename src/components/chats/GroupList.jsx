@@ -2,12 +2,21 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import AddMembers from "./AddMembers";
+import GroupMember from "./GroupMember";
 
 const GroupList = () => {
   const [groups, setGroups] = useState([]);
+  const [userid, setUserid] = useState(null);
+  const [adminId, setAdminId] = useState(null);
+  const [isAdmin,setIsAdmin]=useState(false)
   const [showMembers, setShowMembers] = useState(false);
+  const [addMembers, setAddMembers] = useState(false);
+  console.log(groups[0])
   const showMemberHandler = () => {
     setShowMembers((prev) => !prev);
+  };
+  const addMemberHandler = () => {
+    setAddMembers((prev) => !prev);
   };
   const token = localStorage.getItem("token");
 
@@ -36,7 +45,9 @@ const GroupList = () => {
           headers: { Authorization: token },
         });
         console.log(response.data);
-
+        setAdminId(response.data[0].adminId);
+        
+        // setIsAdmin(adminId==userId)
         setGroups(response.data);
       } catch (error) {
         console.error("Error fetching groups:", error);
@@ -45,6 +56,9 @@ const GroupList = () => {
 
     fetchGroups();
   }, []);
+  const admin=(adminId==userId)
+  console.log(userId,adminId)
+  console.log(admin)
 
   return (
     <div>
@@ -53,14 +67,16 @@ const GroupList = () => {
         {groups &&
           groups.map((group) => (
             <>
-              <li key={group.id}>{group.name}</li>
-              <h3 onClick={showMemberHandler}>add members</h3>
-             {showMembers && <AddMembers userId={userId} group={group} />}
-              {/* <button onClick={()=>{ addMemberToGroup(groupId, userId)}}>add member</button> */}
+              <Link to={`/chats/${group.id}`}>
+                <li key={group.id}>{group.name}</li>
+              </Link>
+             {admin && <h3 onClick={addMemberHandler}>add members</h3>}
+              <h3 onClick={showMemberHandler}>show members</h3>
+              {showMembers && <GroupMember group={group} userId={userId} />}
+              {addMembers && <AddMembers userId={userId} group={group} />}
             </>
           ))}
       </ul>
-      
     </div>
   );
 };

@@ -31,6 +31,7 @@ const AddMembers = ({  group }) => {
       console.error("Error adding user to group:", error);
     }
   };
+
   return <div>
     <ul>
 {user && user.map((item)=>{

@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
+import GroupList from "./GroupList";
 
 const GroupCreation = () => {
-  const [groupName, setGroupName] = useState('');
-  const token = localStorage.getItem('token');
+  const [groupName, setGroupName] = useState("");
+  const token = localStorage.getItem("token");
 
   const createGroup = async () => {
     try {
       const response = await axios.post(
-        '/api/groups/creategroup',
+        "/api/groups/creategroup",
         { name: groupName },
         { headers: { Authorization: token } }
       );
 
       if (response.status === 201) {
-        // Group created successfully, perform necessary actions
-        console.log('Group created!');
-        // Optionally, you might want to update the group list after creation
+        console.log("Group created!");
       }
     } catch (error) {
-      console.error('Error creating group:', error);
+      console.error("Error creating group:", error);
     }
   };
 
@@ -33,6 +32,7 @@ const GroupCreation = () => {
         placeholder="Enter group name"
       />
       <button onClick={createGroup}>Create</button>
+      <GroupList />
     </div>
   );
 };

@@ -26,7 +26,7 @@ const Login = () => {
     });
     console.log(formData);
 
-    navigate("/chats");
+    navigate("/creategroup");
   };
 
   return (

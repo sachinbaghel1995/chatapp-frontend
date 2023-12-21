@@ -5,6 +5,27 @@
     flex-direction: column;
     height: 100vh;
   }
+  /* Chats.module.css */
+
+/* Adjust the container to a flex layout */
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Set the width for the left and right sections */
+.leftSection {
+  width: 30%;
+  /* Optionally, add padding, margin, or other styles */
+}
+
+.rightSection {
+  width: 70%;
+  /* Optionally, add padding, margin, or other styles */
+}
+
+/* Adjust other styles as needed */
+
   
   .chatContainer {
     flex-grow: 1;
