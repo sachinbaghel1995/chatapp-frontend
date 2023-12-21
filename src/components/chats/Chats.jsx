@@ -1,3 +1,7 @@
+
+
+// <----------------------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>------------------------
+
 import React, { useState, useEffect } from "react";
 import style from "./Chats.module.css";
 import axios from "axios";
@@ -7,6 +11,10 @@ import { getMessage } from "../Redux-Store/MessageSlice";
 import { Link, useParams } from "react-router-dom";
 import GroupCreation from "./GroupCreation";
 import GroupList from "./GroupList";
+import io from 'socket.io-client';
+
+const socket = io('http://127.0.0.1:8002');
+
 
 
 const Chats = () => {
@@ -28,6 +36,17 @@ const Chats = () => {
     };
 
     getStoredMessages();
+  }, []);
+  useEffect(() => {
+    // Listener for incoming messages
+    socket.on('message', (data) => {
+      console.log('Received message from server:', data);
+      setMessages((prevMessages) => [...prevMessages, data.message]);
+    });
+
+    return () => {
+      socket.disconnect(); // Disconnect when component unmounts
+    };
   }, []);
 
   const fetchMessages = async () => {
@@ -72,7 +91,7 @@ const Chats = () => {
         { message: Text },
         { headers: { Authorization: token } }
       );
-
+      socket.emit('message', { message: Text });
       setText("");
     } catch (error) {
       console.log(error);
@@ -122,3 +141,4 @@ const Chats = () => {
 };
 
 export default Chats;
+
