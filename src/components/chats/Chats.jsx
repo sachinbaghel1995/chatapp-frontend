@@ -1,5 +1,3 @@
-
-
 // <----------------------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>------------------------
 
 import React, { useState, useEffect } from "react";
@@ -11,21 +9,18 @@ import { getMessage } from "../Redux-Store/MessageSlice";
 import { Link, useParams } from "react-router-dom";
 import GroupCreation from "./GroupCreation";
 import GroupList from "./GroupList";
-import io from 'socket.io-client';
-
-const socket = io('http://127.0.0.1:8002');
-
-
+import io from "socket.io-client";
 
 const Chats = () => {
-  
-  const  group = useParams();
-  const groupId=group.id
-  console.log(groupId)
+  const group = useParams();
+  const groupId = group.id;
+  console.log(groupId);
   const [Text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [user, SetUser] = useState("");
+  const [toggleImage, setToggleImage] = useState(false);
   const token = localStorage.getItem("token");
+  const [image, setImage] = useState([]);
 
   useEffect(() => {
     const getStoredMessages = () => {
@@ -36,17 +31,6 @@ const Chats = () => {
     };
 
     getStoredMessages();
-  }, []);
-  useEffect(() => {
-    // Listener for incoming messages
-    socket.on('message', (data) => {
-      console.log('Received message from server:', data);
-      setMessages((prevMessages) => [...prevMessages, data.message]);
-    });
-
-    return () => {
-      socket.disconnect(); // Disconnect when component unmounts
-    };
   }, []);
 
   const fetchMessages = async () => {
@@ -91,8 +75,50 @@ const Chats = () => {
         { message: Text },
         { headers: { Authorization: token } }
       );
-      socket.emit('message', { message: Text });
+      socket.emit("message", { message: Text });
       setText("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const toggleImageHandler = () => {
+    setToggleImage((prev) => !prev);
+  };
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await axios.get(`/api/messages/image/${groupId}`, {
+          headers: { Authorization: token },
+        });
+
+        if (
+          response.data &&
+          response.data.images &&
+          response.data.images.length > 0
+        ) {
+          // Extract the image path from the response
+          const imagePath = response.data.images[0].image;
+          setImage(imagePath); // Set the image path directly in state
+        }
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
+    fetchImages();
+  }, [groupId, token]);
+
+  const SendImage = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("image", image);
+
+      const response = await axios.post(
+        `/api/messages/image/${groupId}`,
+        formData,
+        { headers: { Authorization: token } }
+      );
     } catch (error) {
       console.log(error);
     }
@@ -102,18 +128,21 @@ const Chats = () => {
     <div className={style.chatpage}>
       <div className={style.container}>
         <div className={style.leftSection}>
-          <div>
-           
-          </div>
-          <div>
-            
-          </div>
+          <div></div>
+          <div></div>
         </div>
 
         <div className={style.rightSection}>
           <div className={style.chatContainer}>
             <ul className={style.chatlist}>
               <ChatList />
+              {image && (
+                <img
+                  src={`http://localhost:3000/${image} `}
+                  width={100} height={100}
+                  
+                />
+              )}
               {messages.map((message) => (
                 <li key={message.id}>
                   {user.name}-{message.text}
@@ -130,9 +159,21 @@ const Chats = () => {
               type="text"
               placeholder="Type your message..."
             />
+
             <button disabled={Text.length === 0} onClick={SendMessage}>
               Send
             </button>
+            <button onClick={toggleImageHandler}>SendImage</button>
+            {toggleImage && (
+              <form onSubmit={SendImage} encType="multipart/form-data">
+                <input
+                  type="file"
+                  name="image"
+                  onChange={(e) => setImage(e.target.files[0])}
+                />
+                <button type="submit">send</button>
+              </form>
+            )}
           </div>
         </div>
       </div>
@@ -141,4 +182,3 @@ const Chats = () => {
 };
 
 export default Chats;
-
